@@ -79,6 +79,7 @@
   <ItemGroup>
     <Compile Include="GameBalancing.cs" />
     <Compile Include="GameMode.cs" />
+    <Compile Include="PlatformInterfaces.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Roles.cs" />
   </ItemGroup>
