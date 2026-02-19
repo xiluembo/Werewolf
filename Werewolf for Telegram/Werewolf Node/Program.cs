@@ -35,6 +35,7 @@ namespace Werewolf_Node
         internal static TelegramBotClient Bot;
         internal static IPlatformClient PlatformClient;
         internal static TwitchPlatformClient TwitchClient;
+        internal static PrivateMessageDeliveryService PrivateMessageService;
         internal static User Me;
         internal static Random R = new Random();
         internal static bool IsShuttingDown = false;
@@ -108,6 +109,16 @@ namespace Werewolf_Node
 
             Bot.OnMakingApiRequest += Bot_OnMakingApiRequest;
             Me = Bot.GetMeAsync().Result;
+
+            var platformMode = Environment.GetEnvironmentVariable("WW_PLATFORM_MODE") ?? "telegram";
+            if (platformMode.Equals("twitch", StringComparison.OrdinalIgnoreCase))
+            {
+                PrivateMessageService = new PrivateMessageDeliveryService(new TwitchPrivateMessageAdapter(TwitchClient));
+            }
+            else
+            {
+                PrivateMessageService = new PrivateMessageDeliveryService(new TelegramPrivateMessageAdapter(Send, Me.Username));
+            }
             do
             {
                 ClientId = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Substring(0, 22); // Since a GUID is always 128 bits, we can omit the "==" that we know will always be present at the end

@@ -233,6 +233,14 @@ namespace Werewolf_Control
 
         internal static void RequestPM(long groupid)
         {
+            var platformMode = Environment.GetEnvironmentVariable("WW_PLATFORM_MODE") ?? "telegram";
+            if (platformMode.Equals("twitch", StringComparison.OrdinalIgnoreCase))
+            {
+                var instruction = GetLocaleString("StartMe", GetLanguage(groupid)) + "\n\nTo receive private actions, open the Twitch extension panel and authorize it for your account.";
+                Send(instruction, groupid);
+                return;
+            }
+
             var button = InlineKeyboardButton.WithUrl("Start Me", "telegram.me/" + Bot.Me.Username);
             Send(GetLocaleString("StartMe", GetLanguage(groupid)), groupid,
                 customMenu: new InlineKeyboardMarkup(new[] {button}));
