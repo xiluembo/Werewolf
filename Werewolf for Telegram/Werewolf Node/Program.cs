@@ -17,8 +17,10 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using Werewolf_Node.Helpers;
+using Werewolf_Node.Platform;
 using Werewolf_Node.Models;
 using Message = TcpFramework.Message;
+using Shared.Platform;
 
 namespace Werewolf_Node
 {
@@ -31,6 +33,8 @@ namespace Werewolf_Node
         internal static bool Running = true;
         internal static HashSet<Werewolf> Games = new HashSet<Werewolf>();
         internal static TelegramBotClient Bot;
+        internal static IPlatformClient PlatformClient;
+        internal static TwitchPlatformClient TwitchClient;
         internal static User Me;
         internal static Random R = new Random();
         internal static bool IsShuttingDown = false;
@@ -99,7 +103,9 @@ namespace Werewolf_Node
             APIToken = key.GetValue("BetaAPI").ToString();
 #endif
             Bot = new TelegramBotClient(APIToken);
-            
+            PlatformClient = new TelegramPlatformClient(Bot);
+            TwitchClient = new TwitchPlatformClient();
+
             Bot.OnMakingApiRequest += Bot_OnMakingApiRequest;
             Me = Bot.GetMeAsync().Result;
             do
@@ -234,7 +240,7 @@ namespace Werewolf_Node
                                     Games.FirstOrDefault(
                                         x => //x.Players?.Any(p => p != null && !p.IsDead && p.TeleUser.Id == ci.Query.From.Id) ?? false);
                                             x.Guid == ci.GameId);
-                                game?.HandleReply(ci.Query);
+                                game?.HandleReply(new TelegramPlatformUpdate(ci.Query));
                                 break;
                             case "PlayerListRequestInfo":
                                 var plri = JsonConvert.DeserializeObject<PlayerListRequestInfo>(msg);

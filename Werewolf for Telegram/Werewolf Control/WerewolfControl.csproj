@@ -349,6 +349,7 @@
     <Compile Include="Helpers\PublicGroups.cs" />
     <Compile Include="Helpers\RegHelper.cs" />
     <Compile Include="Helpers\Settings.cs" />
+    <Compile Include="Helpers\Platform\TelegramControlUpdateAdapter.cs" />
     <Compile Include="Helpers\TCP.cs" />
     <Compile Include="Helpers\Unidecoder.cs" />
     <Compile Include="Helpers\UpdateHelper.cs" />

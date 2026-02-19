@@ -18,7 +18,8 @@ using Werewolf_Control.Helpers;
 using Werewolf_Control.Models;
 using System.Collections;
 using Shared;
-using Telegram.Bot;
+using Shared.Platform;
+using Werewolf_Control.Helpers.Platform;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 namespace Werewolf_Control.Handler
@@ -34,9 +35,12 @@ namespace Werewolf_Control.Handler
         internal static List<GlobalBan> BanList = new List<GlobalBan>();
 
         internal static bool SendGifIds = false;
-        public static void UpdateReceived(ITelegramBotClient bot, Update update)
+        public static void UpdateReceived(IPlatformUpdate update)
         {
-            new Task(() => { HandleUpdate(update); }).Start();
+            var telegramUpdate = (update as TelegramControlUpdateAdapter)?.Update;
+            if (telegramUpdate == null)
+                return;
+            new Task(() => { HandleUpdate(telegramUpdate); }).Start();
         }
 
         private static bool AddCount(long id, Message m)
@@ -713,8 +717,11 @@ namespace Werewolf_Control.Handler
             }
         }
 
-        public static void PreCheckoutReceived(ITelegramBotClient botClient, PreCheckoutQuery preCheckoutQuery)
+        public static void PreCheckoutReceived(IPlatformUpdate update)
         {
+            var preCheckoutQuery = (update as TelegramControlUpdateAdapter)?.Update?.PreCheckoutQuery;
+            if (preCheckoutQuery == null)
+                return;
             new Task(() => { HandlePayment(preCheckoutQuery); }).Start();
         }
 
@@ -746,8 +753,11 @@ namespace Werewolf_Control.Handler
 
         private static string[] nonCommandsList = new[] { "vote", "getlang", "validate", "setlang", "groups", "status", "done", "stopwaiting" };
 
-        public static void CallbackReceived(ITelegramBotClient bot, CallbackQuery query)
+        public static void CallbackReceived(IPlatformUpdate update)
         {
+            var query = (update as TelegramControlUpdateAdapter)?.Update?.CallbackQuery;
+            if (query == null)
+                return;
             new Task(() => { HandleCallback(query); }).Start();
         }
 
@@ -2282,9 +2292,12 @@ namespace Werewolf_Control.Handler
         }
 
 
-        public static void InlineQueryReceived(ITelegramBotClient botClient, InlineQuery inlineQuery)
+        public static void InlineQueryReceived(IPlatformUpdate update)
         {
-            
+            var inlineQuery = (update as TelegramControlUpdateAdapter)?.Update?.InlineQuery;
+            if (inlineQuery == null)
+                return;
+
             new Task(() => { HandleInlineQuery(inlineQuery); }).Start();
         }
 

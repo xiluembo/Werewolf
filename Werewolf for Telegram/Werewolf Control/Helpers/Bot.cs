@@ -18,6 +18,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot.Polling;
 using Werewolf_Control.Handler;
 using Werewolf_Control.Models;
+using Werewolf_Control.Helpers.Platform;
 using Telegram.Bot.Exceptions;
 using Newtonsoft.Json;
 
@@ -256,12 +257,12 @@ namespace Werewolf_Control.Helpers
                 case UpdateType.Message:
 
                     //OnMessage?.Invoke("receiver", e);
-                    UpdateHandler.UpdateReceived(Api, e.Update);
+                    UpdateHandler.UpdateReceived(new TelegramControlUpdateAdapter(e.Update));
                     break;
 
                 case UpdateType.InlineQuery:
                     //OnInlineQuery?.Invoke("receiver", e);
-                    UpdateHandler.InlineQueryReceived(Api, e.Update.InlineQuery);
+                    UpdateHandler.InlineQueryReceived(new TelegramControlUpdateAdapter(e.Update));
                     break;
 
                 case UpdateType.ChosenInlineResult:
@@ -270,7 +271,7 @@ namespace Werewolf_Control.Helpers
 
                 case UpdateType.CallbackQuery:
                     //OnCallbackQuery?.Invoke("receiver", e);
-                    UpdateHandler.CallbackReceived(Api, e.Update.CallbackQuery);
+                    UpdateHandler.CallbackReceived(new TelegramControlUpdateAdapter(e.Update));
                     break;
 
                 case UpdateType.EditedMessage:
@@ -278,7 +279,7 @@ namespace Werewolf_Control.Helpers
                     break;
 
                 case UpdateType.PreCheckoutQuery:
-                    UpdateHandler.PreCheckoutReceived(Api, e.Update.PreCheckoutQuery);
+                    UpdateHandler.PreCheckoutReceived(new TelegramControlUpdateAdapter(e.Update));
                     break;
             }
         }

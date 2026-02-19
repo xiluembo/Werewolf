@@ -13,7 +13,9 @@ using Telegram.Bot.Types.ReplyMarkups;
 using Werewolf_Node.Helpers;
 using Werewolf_Node.Models;
 using Shared;
+using Shared.Platform;
 using Telegram.Bot;
+using Werewolf_Node.Platform;
 
 // ReSharper disable PossibleMultipleEnumeration warning
 #pragma warning disable 4014
@@ -875,20 +877,24 @@ namespace Werewolf_Node
         #endregion
 
         #region Communications
-        public void HandleReply(CallbackQuery query)
+        public void HandleReply(IPlatformUpdate update)
         {
+            var query = (update as TelegramPlatformUpdate)?.Query;
             try
             {
                 if (!IsRunning) return; // ignore button presses after the game ended
 
                 //first off, what was I asking them?
-                var args = query.Data.Split('|');
+                if (query == null || string.IsNullOrWhiteSpace(update.Payload))
+                    return;
+
+                var args = update.Payload.Split('|');
                 //0 - vote
                 //1 - clientid
                 //2 - gameid
                 //3 - QuestionTypeId
                 //4 - choiceid
-                var player = Players.FirstOrDefault(x => x.Id == query.From.Id && !x.IsDead);
+                var player = Players.FirstOrDefault(x => x.Id == update.UserId && !x.IsDead);
 
                 QuestionType qtype = (QuestionType)int.Parse(args[3]);
                 string choice = args[4];
@@ -1024,7 +1030,7 @@ namespace Werewolf_Node
                 var target = Players.FirstOrDefault(x => player.CurrentQuestion.QType == QuestionType.Kill2 ? x.Id == player.Choice2 : x.Id == player.Choice);
                 if (target == null)
                 {
-                    Send(GetLocaleString("NoPlayerName"), query.From.Id);
+                    Send(GetLocaleString("NoPlayerName"), update.UserId);
                     return;
                 }
 
@@ -1158,7 +1164,7 @@ namespace Werewolf_Node
             catch (Exception e)
             {
                 //Send(e.Message, query.From.Id);
-                Console.WriteLine($"Error in HandleReply: {e.Message} \n{query.From.FirstName} {query.From.LastName} (@{query.From.Username})\n{query.Data}");
+                Console.WriteLine($"Error in HandleReply: {e.Message} \n{query?.From?.FirstName} {query?.From?.LastName} (@{query?.From?.Username})\n{update?.Payload}");
             }
         }
 
