@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Shared.Platform;
@@ -23,32 +22,16 @@ namespace Werewolf_Node.Platform
         public object RawUpdate => Query;
     }
 
-    internal sealed class TelegramPlatformAction : IPlatformAction
+    internal static class TelegramMenuMapper
     {
-        public TelegramPlatformAction(string text, string callbackData = null, string url = null)
+        public static InlineKeyboardMarkup ToInlineKeyboardMarkup(this IPlatformActionMenu menu)
         {
-            Text = text;
-            CallbackData = callbackData;
-            Url = url;
-        }
+            if (menu?.Rows == null)
+            {
+                return null;
+            }
 
-        public string Text { get; }
-        public string CallbackData { get; }
-        public string Url { get; }
-    }
-
-    internal sealed class TelegramPlatformActionMenu : IPlatformActionMenu
-    {
-        public TelegramPlatformActionMenu(IReadOnlyCollection<IReadOnlyCollection<IPlatformAction>> rows)
-        {
-            Rows = rows;
-        }
-
-        public IReadOnlyCollection<IReadOnlyCollection<IPlatformAction>> Rows { get; }
-
-        public InlineKeyboardMarkup ToInlineKeyboardMarkup()
-        {
-            var rows = Rows.Select(row => row.Select(action =>
+            var rows = menu.Rows.Select(row => row.Select(action =>
                 !string.IsNullOrWhiteSpace(action.Url)
                     ? InlineKeyboardButton.WithUrl(action.Text, action.Url)
                     : InlineKeyboardButton.WithCallbackData(action.Text, action.CallbackData)).ToArray()).ToArray();
@@ -67,12 +50,12 @@ namespace Werewolf_Node.Platform
 
         public Task SendMessageAsync(long chatId, string message, IPlatformActionMenu menu = null)
         {
-            return _client.SendTextMessageAsync(chatId: chatId, text: message, replyMarkup: (menu as TelegramPlatformActionMenu)?.ToInlineKeyboardMarkup());
+            return _client.SendTextMessageAsync(chatId: chatId, text: message, replyMarkup: menu.ToInlineKeyboardMarkup());
         }
 
         public Task EditMessageAsync(long chatId, int messageId, string message, IPlatformActionMenu menu = null)
         {
-            return _client.EditMessageTextAsync(chatId: chatId, messageId: messageId, text: message, replyMarkup: (menu as TelegramPlatformActionMenu)?.ToInlineKeyboardMarkup());
+            return _client.EditMessageTextAsync(chatId: chatId, messageId: messageId, text: message, replyMarkup: menu.ToInlineKeyboardMarkup());
         }
 
         public Task DeleteMessageAsync(long chatId, int messageId)

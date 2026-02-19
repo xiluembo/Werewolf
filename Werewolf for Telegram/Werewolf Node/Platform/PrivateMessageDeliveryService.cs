@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Shared.Platform;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Werewolf_Node.Platform
@@ -20,7 +21,7 @@ namespace Werewolf_Node.Platform
 
     internal interface IPrivateMessageAdapter
     {
-        Task<Telegram.Bot.Types.Message> SendAsync(string message, long externalUserId, InlineKeyboardMarkup menu = null, bool notify = false, bool preview = false);
+        Task<Telegram.Bot.Types.Message> SendAsync(string message, long externalUserId, IPlatformActionMenu menu = null, bool notify = false, bool preview = false);
         PrivateMessagePrompt BuildAuthorizationPrompt();
     }
 
@@ -35,9 +36,9 @@ namespace Werewolf_Node.Platform
             _botUsername = botUsername;
         }
 
-        public Task<Telegram.Bot.Types.Message> SendAsync(string message, long externalUserId, InlineKeyboardMarkup menu = null, bool notify = false, bool preview = false)
+        public Task<Telegram.Bot.Types.Message> SendAsync(string message, long externalUserId, IPlatformActionMenu menu = null, bool notify = false, bool preview = false)
         {
-            return _send(message, externalUserId, false, menu, notify, preview);
+            return _send(message, externalUserId, false, menu.ToInlineKeyboardMarkup(), notify, preview);
         }
 
         public PrivateMessagePrompt BuildAuthorizationPrompt()
@@ -56,7 +57,7 @@ namespace Werewolf_Node.Platform
             _client = client;
         }
 
-        public Task<Telegram.Bot.Types.Message> SendAsync(string message, long externalUserId, InlineKeyboardMarkup menu = null, bool notify = false, bool preview = false)
+        public Task<Telegram.Bot.Types.Message> SendAsync(string message, long externalUserId, IPlatformActionMenu menu = null, bool notify = false, bool preview = false)
         {
             _client.QueueDirectMessage(externalUserId, message, ConvertMenu(menu));
             return Task.FromResult<Telegram.Bot.Types.Message>(null);
@@ -67,16 +68,16 @@ namespace Werewolf_Node.Platform
             return new PrivateMessagePrompt("To receive private actions, open the Twitch extension panel and authorize it for your account.");
         }
 
-        private static IReadOnlyCollection<IReadOnlyCollection<TwitchPlatformClient.TwitchAction>> ConvertMenu(InlineKeyboardMarkup menu)
+        private static IReadOnlyCollection<IReadOnlyCollection<TwitchPlatformClient.TwitchAction>> ConvertMenu(IPlatformActionMenu menu)
         {
-            if (menu?.InlineKeyboard == null)
+            if (menu?.Rows == null)
             {
                 return null;
             }
 
-            return menu.InlineKeyboard
-                .Select(row => (IReadOnlyCollection<TwitchPlatformClient.TwitchAction>)row.Select(button =>
-                    new TwitchPlatformClient.TwitchAction(button.Text, button.CallbackData, button.Url)).ToList())
+            return menu.Rows
+                .Select(row => (IReadOnlyCollection<TwitchPlatformClient.TwitchAction>)row.Select(action =>
+                    new TwitchPlatformClient.TwitchAction(action.Text, action.CallbackData, action.Url)).ToList())
                 .ToList();
         }
     }
@@ -90,7 +91,7 @@ namespace Werewolf_Node.Platform
             _adapter = adapter;
         }
 
-        public Task<Telegram.Bot.Types.Message> SendAsync(string message, long externalUserId, InlineKeyboardMarkup menu = null, bool notify = false, bool preview = false)
+        public Task<Telegram.Bot.Types.Message> SendAsync(string message, long externalUserId, IPlatformActionMenu menu = null, bool notify = false, bool preview = false)
         {
             return _adapter.SendAsync(message, externalUserId, menu, notify, preview);
         }

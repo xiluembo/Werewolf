@@ -9,6 +9,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 //using Telegram.Bot.Types.InlineKeyboardButtons;
 using Telegram.Bot.Types.ReplyMarkups;
+using Shared.Platform;
 using Werewolf_Control.Models;
 
 namespace Werewolf_Control.Helpers
@@ -196,18 +197,18 @@ namespace Werewolf_Control.Helpers
             var col = menu.Columns - 1;
             //this is gonna be fun...
             var final = new List<InlineKeyboardButton[]>();
-            for (var i = 0; i < menu.Buttons.Count; i++)
+            for (var i = 0; i < menu.Actions.Count; i++)
             {
-                var row = new List<InlineKeyboardButton>();
+                var row = new List<PlatformAction>();
                 do
                 {
-                    row.Add(menu.Buttons[i]);
+                    row.Add(menu.Actions[i]);
                     i++;
-                    if (i == menu.Buttons.Count) break;
+                    if (i == menu.Actions.Count) break;
                 } while (i % (col + 1) != 0);
                 i--;
-                final.Add(row.ToArray());
-                if (i == menu.Buttons.Count) break;
+                final.Add(row.Select(action => !string.IsNullOrWhiteSpace(action.Url) ? InlineKeyboardButton.WithUrl(action.Text, action.Url) : InlineKeyboardButton.WithCallbackData(action.Text, action.CallbackData)).ToArray());
+                if (i == menu.Actions.Count) break;
             }
             return new InlineKeyboardMarkup(final.ToArray());
         }

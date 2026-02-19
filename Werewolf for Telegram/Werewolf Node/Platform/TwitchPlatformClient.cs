@@ -90,5 +90,26 @@ namespace Werewolf_Node.Platform
 
             return queue.ToList();
         }
+
+        public IReadOnlyCollection<TwitchDirectMessage> GetQueuedDirectMessages(long userId, IReadOnlyCollection<string> validPayloads)
+        {
+            var messages = GetQueuedDirectMessages(userId);
+            if (validPayloads == null || validPayloads.Count == 0)
+            {
+                return messages;
+            }
+
+            var whitelist = new HashSet<string>(validPayloads);
+            return messages
+                .Select(message => new TwitchDirectMessage(
+                    message.UserId,
+                    message.Message,
+                    message.Actions?
+                        .Select(row => (IReadOnlyCollection<TwitchAction>)row.Where(action => string.IsNullOrWhiteSpace(action.CallbackData) || whitelist.Contains(action.CallbackData)).ToList())
+                        .Where(row => row.Count > 0)
+                        .ToList()))
+                .Where(message => message.Actions == null || message.Actions.Count > 0)
+                .ToList();
+        }
     }
 }

@@ -13,6 +13,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.Payments;
 using Telegram.Bot.Types.ReplyMarkups;
+using Shared.Platform;
 using Werewolf_Control.Helpers;
 using Werewolf_Control.Models;
 using RegHelper = Werewolf_Control.Helpers.RegHelper;
@@ -40,17 +41,17 @@ namespace Werewolf_Control
             if (u.Message.Chat.Type == ChatType.Private)
             {
 #if !BETA
-                menu.Buttons.Add(InlineKeyboardButton.WithCallbackData("Telegram", "donatetg"));
-                menu.Buttons.Add(InlineKeyboardButton.WithCallbackData("Xsolla", "xsolla"));
+                menu.Actions.Add(new PlatformAction("Telegram", "donatetg"));
+                menu.Actions.Add(new PlatformAction("Xsolla", "xsolla"));
 #else
-                menu.Buttons.Add(InlineKeyboardButton.WithUrl("Telegram", $"https://t.me/werewolfbot?start=donatetg"));
-                menu.Buttons.Add(InlineKeyboardButton.WithUrl("Xsolla", $"https://t.me/werewolfbot?start=xsolla"));
+                menu.Actions.Add(new PlatformAction("Telegram", url: $"https://t.me/werewolfbot?start=donatetg"));
+                menu.Actions.Add(new PlatformAction("Xsolla", url: $"https://t.me/werewolfbot?start=xsolla"));
 #endif
             }
             else
             {
-                menu.Buttons.Add(InlineKeyboardButton.WithUrl("Telegram", $"https://t.me/werewolfbot?start=donatetg"));
-                menu.Buttons.Add(InlineKeyboardButton.WithUrl("Xsolla", $"https://t.me/werewolfbot?start=xsolla"));
+                menu.Actions.Add(new PlatformAction("Telegram", url: $"https://t.me/werewolfbot?start=donatetg"));
+                menu.Actions.Add(new PlatformAction("Xsolla", url: $"https://t.me/werewolfbot?start=xsolla"));
             }
             var markup = menu.CreateMarkupFromMenu();
             var txt = $"Want to help keep Werewolf Moderator online? Donate now and gets: {"Custom gifs".ToBold()} and {"Badges".ToBold()}!\n\nClick the button below to donate!!\n\nMore Info: https://telegra.ph/Custom-Gif-Packs-and-Donation-Levels-06-27";
@@ -190,12 +191,12 @@ namespace Werewolf_Control
                 {
                     i += " 🚫";
                 }
-                m.Buttons.Add(InlineKeyboardButton.WithCallbackData(i, "customgif|" + i));
+                m.Actions.Add(new PlatformAction(i, "customgif", i));
             }
-            m.Buttons.Add(InlineKeyboardButton.WithCallbackData("Show Badge: " + (d.ShowBadge ? "✅" : "🚫"), "customgif|togglebadge"));
-            m.Buttons.Add(InlineKeyboardButton.WithCallbackData("❗️ RESET GIFS ❗️", "customgif|resetgifs"));
-            m.Buttons.Add(InlineKeyboardButton.WithCallbackData("Done for now", "cancel|cancel|cancel"));
-            m.Buttons.Add(InlineKeyboardButton.WithCallbackData("Submit for approval", "customgif|submit"));
+            m.Actions.Add(new PlatformAction("Show Badge: " + (d.ShowBadge ? "✅" : "🚫"), "customgif", "togglebadge"));
+            m.Actions.Add(new PlatformAction("❗️ RESET GIFS ❗️", "customgif", "resetgifs"));
+            m.Actions.Add(new PlatformAction("Done for now", "cancel", "cancel|cancel"));
+            m.Actions.Add(new PlatformAction("Submit for approval", "customgif", "submit"));
 
             return m.CreateMarkupFromMenu();
         }
@@ -240,10 +241,10 @@ namespace Werewolf_Control
                     }
                 }
                 var menu = new Menu(2);
-                menu.Buttons.Add(InlineKeyboardButton.WithCallbackData("Review", "reviewgifs|" + q.From.Id));
-                menu.Buttons.Add(InlineKeyboardButton.WithCallbackData("Dismiss", $"dismiss|" + q.From.Id));
-                menu.Buttons.Add(InlineKeyboardButton.WithCallbackData("Approved: SFW", "approvesfw|" + q.From.Id));
-                menu.Buttons.Add(InlineKeyboardButton.WithCallbackData("Approved: NSFW", "approvensfw|" + q.From.Id));
+                menu.Actions.Add(new PlatformAction("Review", "reviewgifs", q.From.Id.ToString()));
+                menu.Actions.Add(new PlatformAction("Dismiss", "dismiss", q.From.Id.ToString()));
+                menu.Actions.Add(new PlatformAction("Approved: SFW", "approvesfw", q.From.Id.ToString()));
+                menu.Actions.Add(new PlatformAction("Approved: NSFW", "approvensfw", q.From.Id.ToString()));
                 Bot.Send($"User {q.From.Id} - {(q.From.Username == null ? q.From.FirstName : $"@{q.From.Username}")} - has submitted a gif pack for approval", Settings.AdminChatId, customMenu: menu.CreateMarkupFromMenu());
                 Bot.Send("Your GIF pack has been submitted to the admins for approval!\n\nPlease keep in mind that admins have a huge number of GIF packs to review, hence this process may take up to 2-5 working days.\n\nOur admins will keep track of the submitted GIF packs, you don’t have to PM them directly. Thank you for your patience!", q.From.Id);
                 return;
@@ -270,8 +271,8 @@ namespace Werewolf_Control
             if (choice == "resetgifs")
             {
                 var menu = new Menu();
-                menu.Buttons.Add(InlineKeyboardButton.WithCallbackData("❗️ CONFIRM RESET ❗️", "customgif|confirmreset"));
-                menu.Buttons.Add(InlineKeyboardButton.WithCallbackData("Cancel", "customgif|cancelreset"));
+                menu.Actions.Add(new PlatformAction("❗️ CONFIRM RESET ❗️", "customgif", "confirmreset"));
+                menu.Actions.Add(new PlatformAction("Cancel", "customgif", "cancelreset"));
                 Bot.Send("You are about to reset your custom GIF set! All your saved GIFs will be deleted! You can set them again, but you will not be able to restore your current GIFs. Are you sure you want to continue?", q.From.Id, customMenu: menu.CreateMarkupFromMenu());
                 return;
             }
