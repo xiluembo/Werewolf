@@ -6,8 +6,25 @@ using System.Threading.Tasks;
 
 namespace Werewolf_Control.Helpers
 {
+    internal enum PlatformMode
+    {
+        Telegram,
+        Twitch
+    }
+
     internal static class Settings
     {
+
+        public static PlatformMode CurrentPlatformMode
+        {
+            get
+            {
+                var configuredValue = Environment.GetEnvironmentVariable("WW_PLATFORM_MODE") ?? "telegram";
+                return configuredValue.Equals("twitch", StringComparison.OrdinalIgnoreCase)
+                    ? PlatformMode.Twitch
+                    : PlatformMode.Telegram;
+            }
+        }
 
         //By the way, these admin ports will have IP whitelisting.  Don't even bother trying to connect to them :P
         //The regular ports are not even open on the firewall

@@ -2,8 +2,24 @@
 
 namespace Werewolf_Node
 {
+    internal enum PlatformMode
+    {
+        Telegram,
+        Twitch
+    }
+
     static class Settings
     {
+        public static PlatformMode CurrentPlatformMode
+        {
+            get
+            {
+                var configuredValue = System.Environment.GetEnvironmentVariable("WW_PLATFORM_MODE") ?? "telegram";
+                return configuredValue.Equals("twitch", System.StringComparison.OrdinalIgnoreCase)
+                    ? PlatformMode.Twitch
+                    : PlatformMode.Telegram;
+            }
+        }
 #if DEBUG
         public static string ServerIP = "127.0.0.1";
 #else

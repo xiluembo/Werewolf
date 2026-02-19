@@ -105,7 +105,7 @@ namespace Werewolf_Control
             try
             {
                 var result = Bot.Api.SendTextMessageAsync(chatId: update.Message.From.Id, text: reply).Result;
-                if (update.Message.Chat.Type != ChatType.Private)
+                if (!UpdateHelper.IsPrivateChat(update))
                     Send(GetLocaleString("SentPrivate", GetLanguage(update.Message.From.Id)), update.Message.Chat.Id);
             }
             catch

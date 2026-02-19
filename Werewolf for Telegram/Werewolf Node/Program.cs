@@ -110,8 +110,7 @@ namespace Werewolf_Node
             Bot.OnMakingApiRequest += Bot_OnMakingApiRequest;
             Me = Bot.GetMeAsync().Result;
 
-            var platformMode = Environment.GetEnvironmentVariable("WW_PLATFORM_MODE") ?? "telegram";
-            if (platformMode.Equals("twitch", StringComparison.OrdinalIgnoreCase))
+            if (Settings.CurrentPlatformMode == PlatformMode.Twitch)
             {
                 PrivateMessageService = new PrivateMessageDeliveryService(new TwitchPrivateMessageAdapter(TwitchClient));
             }
