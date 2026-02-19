@@ -38,6 +38,7 @@ namespace Werewolf_Node
         public GameMode GameMode;
         public string Guid;
         private readonly InlineKeyboardMarkup _requestPMButton;
+        private readonly string _requestPMInstructions;
         public DateTime LastPlayersOutput = DateTime.Now;
         public GameTime Time;
         public string Language = "English SFW", ChatGroup;
@@ -217,7 +218,9 @@ namespace Werewolf_Node
 
                     LoadLanguage(DbGroup.Language, DbGroup.HasFlag(GroupConfig.RandomLangVariant));
 
-                    _requestPMButton = new InlineKeyboardMarkup(new[] { InlineKeyboardButton.WithUrl("Start Me", "http://t.me/" + Program.Me.Username) });
+                    var privateMessagePrompt = Program.PrivateMessageService.BuildAuthorizationPrompt();
+                    _requestPMButton = privateMessagePrompt.Menu;
+                    _requestPMInstructions = privateMessagePrompt.Instruction;
                     //AddPlayer(u);
                 }
 
@@ -1171,7 +1174,15 @@ namespace Werewolf_Node
         private Task<Telegram.Bot.Types.Message> Send(string message, long id = 0, bool clearKeyboard = false, InlineKeyboardMarkup menu = null, bool notify = false, bool preview = false)
         {
             if (id == 0)
+            {
                 id = ChatId;
+            }
+
+            if (id != ChatId)
+            {
+                return Program.PrivateMessageService.SendAsync(message, id, menu, notify, preview);
+            }
+
             return Program.Send(message, id, clearKeyboard, menu, game: this, notify: notify, preview: preview);
         }
 
@@ -1301,7 +1312,10 @@ namespace Werewolf_Node
                     {
                         if (requestPM)
                         {
-                            Send(final, 0, false, _requestPMButton);
+                            var privatePromptText = string.IsNullOrWhiteSpace(_requestPMInstructions)
+                                ? final
+                                : final + Environment.NewLine + Environment.NewLine + _requestPMInstructions;
+                            Send(privatePromptText, 0, false, _requestPMButton);
                         }
                         else
                         {

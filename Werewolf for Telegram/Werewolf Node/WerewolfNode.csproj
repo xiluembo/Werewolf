@@ -246,6 +246,7 @@
     <Compile Include="Models\TcpAdminClasses.cs" />
     <Compile Include="Models\TcpInfoClasses.cs" />
     <Compile Include="Platform\TelegramPlatformAdapter.cs" />
+    <Compile Include="Platform\PrivateMessageDeliveryService.cs" />
     <Compile Include="Platform\TwitchPlatformClient.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
