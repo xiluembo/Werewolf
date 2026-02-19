@@ -811,7 +811,7 @@ namespace Werewolf_Control
 
             Bot.Api.SendTextMessageAsync(chatId: u.Message.From.Id, text: "Which bot?",
                 replyMarkup: menu);
-            if (u.Message.Chat.Type != ChatType.Private)
+            if (!UpdateHelper.IsPrivateChat(u))
                 Send(GetLocaleString("SentPrivate", GetLanguage(u.Message.From.Id)), u.Message.Chat.Id);
         }
 
@@ -1333,7 +1333,7 @@ namespace Werewolf_Control
         {
             try
             {
-                if (u.Message.Chat.Type != ChatType.Private)
+                if (!UpdateHelper.IsPrivateChat(u))
                 {
                     Send("You must run this command in PM!!", u.Message.Chat.Id);
                     return;

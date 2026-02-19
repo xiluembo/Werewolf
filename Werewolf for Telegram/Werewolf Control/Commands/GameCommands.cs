@@ -47,7 +47,7 @@ namespace Werewolf_Control
             var id = update.Message.Chat.Id;
             using (var db = new WWContext())
             {
-                if (update.Message.Chat.Type == ChatType.Private)
+                if (UpdateHelper.IsPrivateChat(update))
                 {
                     //PM....  can't do that here
                     Send(GetLocaleString("JoinFromGroup", GetLanguage(update.Message.From.Id)), id);
@@ -154,7 +154,7 @@ namespace Werewolf_Control
         public static void Extend(Update update, string[] args)
         {
             var id = update.Message.Chat.Id;
-            var isadmin = UpdateHelper.IsGroupAdmin(update) || UpdateHelper.IsGlobalAdmin(update.Message.From.Id);
+            var isadmin = UpdateHelper.IsGroupAdmin(update.Message.From.Id, update.Message.Chat.Id) || UpdateHelper.IsGlobalAdmin(update.Message.From.Id);
             //check nodes to see if player is in a game
             var node = GetPlayerNode(update.Message.From.Id);
             var game = GetGroupNodeAndGame(update.Message.Chat.Id);

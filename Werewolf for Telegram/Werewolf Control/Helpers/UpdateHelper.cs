@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Shared.Platform;
 using System.Runtime.Caching;
 using Telegram.Bot;
 
@@ -35,6 +36,35 @@ namespace Werewolf_Control.Helpers
             return IsGroupAdmin(update.Message.From.Id, update.Message.Chat.Id);
         }
 
+        internal static bool IsPrivateChat(Update update)
+        {
+            if (Settings.CurrentPlatformMode == PlatformMode.Twitch)
+                return false;
+            return update?.Message?.Chat?.Type == ChatType.Private;
+        }
+
+        internal static bool IsGroupChat(Update update)
+        {
+            return !IsPrivateChat(update);
+        }
+
+        internal static bool IsAnonymousAdmin(Update update)
+        {
+            if (Settings.CurrentPlatformMode == PlatformMode.Twitch)
+                return false;
+
+            var isAnonymousSender = update?.Message?.SenderChat != null;
+            var isAnonymousAdmin = isAnonymousSender && (update?.Message?.SenderChat?.Id == update?.Message?.Chat?.Id);
+            return isAnonymousAdmin;
+        }
+
+        internal static bool IsGroupAdmin(IPlatformUpdate update)
+        {
+            if (update == null)
+                return false;
+            return IsGroupAdmin(update.UserId, update.ChatId);
+        }
+
         internal static bool IsGlobalAdmin(long id)
         {
             using (var db = new Database.WWContext())
@@ -50,6 +80,12 @@ namespace Werewolf_Control.Helpers
 
         internal static bool IsGroupAdmin(long user, long group)
         {
+            if (Settings.CurrentPlatformMode == PlatformMode.Twitch)
+            {
+                // On Twitch, GroupId stores broadcaster/channel ID and broadcaster has full group admin rights.
+                return user == group;
+            }
+
             string itemIndex = $"{group}";
             if (!(AdminCache[itemIndex] is List<long> admins))
             {

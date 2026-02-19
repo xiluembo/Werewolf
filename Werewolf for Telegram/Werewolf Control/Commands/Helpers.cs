@@ -40,7 +40,7 @@ namespace Werewolf_Control
 
         private static void StartGame(GameMode gameMode, Update update)
         {
-            if (update.Message.Chat.Type == ChatType.Private)
+            if (UpdateHelper.IsPrivateChat(update))
             {
                 //PM....  can't do that here
                 Send(GetLocaleString("StartFromGroup", GetLanguage(update.Message.From.Id)), update.Message.Chat.Id);
@@ -233,8 +233,7 @@ namespace Werewolf_Control
 
         internal static void RequestPM(long groupid)
         {
-            var platformMode = Environment.GetEnvironmentVariable("WW_PLATFORM_MODE") ?? "telegram";
-            if (platformMode.Equals("twitch", StringComparison.OrdinalIgnoreCase))
+            if (Settings.CurrentPlatformMode == PlatformMode.Twitch)
             {
                 var instruction = GetLocaleString("StartMe", GetLanguage(groupid)) + "\n\nTo receive private actions, open the Twitch extension panel and authorize it for your account.";
                 Send(instruction, groupid);

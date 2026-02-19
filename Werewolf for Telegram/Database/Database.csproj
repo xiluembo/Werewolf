@@ -223,6 +223,7 @@
     </Compile>
     <Compile Include="ModelExtensions\AspNetUser.cs" />
     <Compile Include="ModelExtensions\Group.cs" />
+    <Compile Include="ModelExtensions\IdentityMappingPolicy.cs" />
     <Compile Include="NotifyGame.cs">
       <DependentUpon>WerewolfModel.tt</DependentUpon>
     </Compile>

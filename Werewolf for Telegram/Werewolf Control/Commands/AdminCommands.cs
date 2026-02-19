@@ -619,7 +619,7 @@ namespace Werewolf_Control
                         Send("User does not have a custom gif pack", u.Message.Chat.Id);
                         return;
                     }
-                    if (u.Message.Chat.Type != ChatType.Private)
+                    if (!UpdateHelper.IsPrivateChat(u))
                         Send("I will send you the gifs in private", u.Message.Chat.Id);
 
                     var pack = JsonConvert.DeserializeObject<CustomGifData>(json);

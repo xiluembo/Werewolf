@@ -38,7 +38,7 @@ namespace Werewolf_Control
             //    "•Bitcoin: 13QvBKfAattcSxSsW274fbgnKU5ASpnK3A" +
             //    "\n\nDonations help us pay to keep the expensive servers running and the game online. Every donation you make helps to keep us going for another month. For more information please contact @werewolfsupport", ParseMode.Html, true);
             var menu = new Menu();
-            if (u.Message.Chat.Type == ChatType.Private)
+            if (UpdateHelper.IsPrivateChat(u))
             {
 #if !BETA
                 menu.Actions.Add(new PlatformAction("Telegram", "donatetg"));

@@ -126,11 +126,11 @@ namespace Werewolf_Control
                         TelegramId = update.Message.From.Id,
                         Language = "English",
 #if RELEASE
-                        HasPM = update.Message.Chat.Type == ChatType.Private
+                        HasPM = UpdateHelper.IsPrivateChat(update)
 #elif RELEASE2
-                        HasPM2 = update.Message.Chat.Type == ChatType.Private
+                        HasPM2 = UpdateHelper.IsPrivateChat(update)
 #elif DEBUG
-                        HasDebugPM = update.Message.Chat.Type == ChatType.Private
+                        HasDebugPM = UpdateHelper.IsPrivateChat(update)
 #endif
                     };
                     db.Players.Add(p);
@@ -180,14 +180,14 @@ namespace Werewolf_Control
             var curLang = langs.First(x => x.FileName == curLangFileName);
             Bot.Api.SendTextMessageAsync(chatId: update.Message.From.Id, text: GetLocaleString("WhatLang", curLangFileName, curLang.Base),
                 replyMarkup: menu);
-            if (update.Message.Chat.Type != ChatType.Private)
+            if (!UpdateHelper.IsPrivateChat(update))
                 Send(GetLocaleString("SentPrivate", GetLanguage(update.Message.From.Id)), update.Message.Chat.Id);
         }
 
         [Command(Trigger = "start")]
         public static void Start(Update u, string[] args)
         {
-            if (u.Message.Chat.Type == ChatType.Private && u.Message.From != null)
+            if (UpdateHelper.IsPrivateChat(u) && u.Message.From != null)
             {
                 using (var db = new WWContext())
                 {
@@ -500,7 +500,7 @@ namespace Werewolf_Control
         public static void GetStats(Update u, string[] args)
         {
             //var reply = $"[Global Stats](www.tgwerewolf.com/Stats)\n";
-            //if (update.Message.Chat.Type != ChatType.Private)
+            //if (!UpdateHelper.IsPrivateChat(update))
             //    reply += $"[Group Stats](www.tgwerewolf.com/Stats/Group/{update.Message.Chat.Id}) ({update.Message.Chat.Title})\n";
             //reply += $"[Player Stats](www.tgwerewolf.com/Stats/Player/{update.Message.From.Id}) ({update.Message.From.FirstName})";
 
@@ -542,7 +542,7 @@ namespace Werewolf_Control
 
                     }
                 };
-                if (u.Message.Chat.Type != ChatType.Private)
+                if (!UpdateHelper.IsPrivateChat(u))
                     buttons.Add(new[]
                     {
                         InlineKeyboardButton.WithUrl( $"{u.Message.Chat.Title} Stats",
@@ -561,7 +561,7 @@ namespace Werewolf_Control
         [Command(Trigger = "myidles")]
         public static void MyIdles(Update update, string[] args)
         {
-            bool isgroup = new[] { ChatType.Group, ChatType.Supergroup }.Contains(update.Message.Chat.Type);
+            bool isgroup = UpdateHelper.IsGroupChat(update);
             
             var idles = 0;
             var groupidles = 0;
@@ -582,7 +582,7 @@ namespace Werewolf_Control
             try
             {
                 var result = Bot.Api.SendTextMessageAsync(chatId: update.Message.From.Id, text: reply).Result;
-                if (update.Message.Chat.Type != ChatType.Private)
+                if (!UpdateHelper.IsPrivateChat(update))
                     Send(GetLocaleString("SentPrivate", GetLanguage(update.Message.From.Id)), update.Message.Chat.Id);
             }
             catch

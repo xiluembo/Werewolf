@@ -329,7 +329,7 @@ namespace Werewolf_Control.Handler
                             if (update.Message.Text.StartsWith("!") || update.Message.Text.StartsWith("/"))
                             {
                                 var isAnonymousSender = update.Message.SenderChat != null;
-                                var isAnonymousAdmin = isAnonymousSender && (update.Message.SenderChat.Id == update.Message.Chat.Id);
+                                var isAnonymousAdmin = UpdateHelper.IsAnonymousAdmin(update);
 
                                 if (BanList.Any(x => x.TelegramId == (update.Message?.From?.Id ?? 0)) ||
                                     SpamBanList.Contains(update.Message?.From?.Id ?? 0))
@@ -379,7 +379,7 @@ namespace Werewolf_Control.Handler
                                     Bot.MessagesProcessed++;
 #if RELEASE2
                                     Send($"Bot 2 is retiring.  Please switch to @werewolfbot", update.Message.Chat.Id);
-                                    if (update.Message.Chat.Type != ChatType.Private)
+                                    if (!UpdateHelper.IsPrivateChat(update))
                                     {
                                         Thread.Sleep(1000);
                                         Bot.Api.LeaveChat(update.Message.Chat.Id);
@@ -429,13 +429,13 @@ namespace Werewolf_Control.Handler
                                             return;
                                         }
                                     }
-                                    if (command.InGroupOnly & update.Message.Chat.Type == ChatType.Private)
+                                    if (command.InGroupOnly && UpdateHelper.IsPrivateChat(update))
                                     {
                                         Send(GetLocaleString("GroupCommandOnly", GetLanguage(id)), id);
                                         return;
                                     }
-                                    if (command.GroupAdminOnly & !isAnonymousAdmin & !UpdateHelper.IsGroupAdmin(update) &
-                                        !UpdateHelper.Devs.Contains(update.Message.From.Id) &
+                                    if (command.GroupAdminOnly && !isAnonymousAdmin && !UpdateHelper.IsGroupAdmin(update.Message.From.Id, update.Message.Chat.Id) &&
+                                        !UpdateHelper.Devs.Contains(update.Message.From.Id) &&
                                         !UpdateHelper.IsGlobalAdmin(update.Message.From.Id))
                                     {
                                         Send(GetLocaleString("GroupAdminOnly", GetLanguage(update.Message.Chat.Id)),
@@ -456,7 +456,7 @@ namespace Werewolf_Control.Handler
                             //{
                             //    CLI.AuthCode = update.Message.Text;
                             //}
-                            else if (update.Message.Chat.Type == ChatType.Private &&
+                            else if (UpdateHelper.IsPrivateChat(update) &&
                                      (update.Message?.ReplyToMessage?.From?.Id ?? 0) == Bot.Me.Id &&
                                      (update.Message?.ReplyToMessage?.Text?.Contains(
                                           "Please enter a whole number, in US Dollars (USD)") ?? false))
@@ -478,7 +478,7 @@ namespace Werewolf_Control.Handler
                                     var doc = update.Message.Animation;
                                     Send(doc.FileId, update.Message.Chat.Id);
                                 }
-                                else if (update.Message.Chat.Type == ChatType.Private &&
+                                else if (UpdateHelper.IsPrivateChat(update) &&
                                          (update.Message?.ReplyToMessage?.From?.Id ?? 0) == Bot.Me.Id &&
                                          (update.Message?.ReplyToMessage?.Text?.Contains(
                                               "send me the GIF you want to use for this situation, as a reply") ??
@@ -497,7 +497,7 @@ namespace Werewolf_Control.Handler
                                     Bot.MessagesProcessed++;
                                     Send("This is an old GIF, that is still in .gif format and not in .mp4 format. Please try reuploading it.", update.Message.Chat.Id);
                                 }
-                                else if (update.Message.Chat.Type == ChatType.Private &&
+                                else if (UpdateHelper.IsPrivateChat(update) &&
                                          (update.Message?.ReplyToMessage?.From?.Id ?? 0) == Bot.Me.Id &&
                                          (update.Message?.ReplyToMessage?.Text?.Contains(
                                               "send me the GIF you want to use for this situation, as a reply") ??
@@ -827,7 +827,7 @@ namespace Werewolf_Control.Handler
                                         Send("User does not have a custom gif pack", query.Message.Chat.Id);
                                         return;
                                     }
-                                    if (query.Message.Chat.Type != ChatType.Private)
+                                    if (Settings.CurrentPlatformMode == PlatformMode.Telegram && query.Message.Chat.Type != ChatType.Private)
                                         Send("I will send you the gifs in private", query.Message.Chat.Id);
 
                                     pack = JsonConvert.DeserializeObject<CustomGifData>(json);
