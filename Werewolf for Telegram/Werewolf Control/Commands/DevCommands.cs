@@ -28,6 +28,7 @@ using RegHelper = Werewolf_Control.Helpers.RegHelper;
 using System.Collections;
 using System.Drawing;
 using Telegram.Bot;
+using Shared.Platform;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 #pragma warning disable IDE0060 // Remove unused parameter
@@ -95,16 +96,16 @@ namespace Werewolf_Control
 #endif
 
             var menu = new Menu(1,
-                new List<InlineKeyboardButton>
+                new List<PlatformAction>
                 {
-                    InlineKeyboardButton.WithCallbackData("All of it!", build + "controlwebsitenode"),
-                    InlineKeyboardButton.WithCallbackData("Control & Node", build + "releasecontrolnode"),
-                    InlineKeyboardButton.WithCallbackData("Website & Control", build + "controlwebsite"),
-                    InlineKeyboardButton.WithCallbackData("Website & Node", build + "nodewebsite"),
-                    InlineKeyboardButton.WithCallbackData("Website Only", build + "website"),
-                    InlineKeyboardButton.WithCallbackData("Control Only", build + "control"),
-                    InlineKeyboardButton.WithCallbackData("Node Only", build + "node"),
-                    InlineKeyboardButton.WithCallbackData("No", "build|no")
+                    new PlatformAction("All of it!", payload: build + "controlwebsitenode"),
+                    new PlatformAction("Control & Node", payload: build + "releasecontrolnode"),
+                    new PlatformAction("Website & Control", payload: build + "controlwebsite"),
+                    new PlatformAction("Website & Node", payload: build + "nodewebsite"),
+                    new PlatformAction("Website Only", payload: build + "website"),
+                    new PlatformAction("Control Only", payload: build + "control"),
+                    new PlatformAction("Node Only", payload: build + "node"),
+                    new PlatformAction("No", payload: "build|no")
                 });
 
             Send($"Select build to trigger", u.Message.Chat.Id,
